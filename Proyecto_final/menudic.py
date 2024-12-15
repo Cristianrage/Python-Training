@@ -17,8 +17,12 @@ crear_tabla_productos()
 
 titulos = ["Codigo","Nombre", "Descripcion", "Precio", "Cantidad", "Categoria"]
 
-#Producto1 = {"nombre" : "manzana", "descripcion" : "deliciosa", "precio" : 2000.00, "cantidad" : 100, "categoria" : "fruta"}
-#Producto2 = {"nombre" : "mayonesa", "descripcion" : "BC", "precio" : 1800.00, "cantidad" : 100, "categoria" : "aderezo"}
+Producto1 = {"nombre" : "manzana", "descripcion" : "deliciosa", "precio" : 2000.00, "cantidad" : 100, "categoria" : "fruta"}
+Producto2 = {"nombre" : "mayonesa", "descripcion" : "BC", "precio" : 1800.00, "cantidad" : 100, "categoria" : "aderezo"}
+
+productos = {1 : Producto1, 2 : Producto2}
+
+idcount = 3
 
 
 def ingresar_precio():
@@ -51,11 +55,9 @@ def registrar_producto() :
     precio = ingresar_precio()
     cantidad = ingresar_cantidad()
     categoria = input("Ingrese la categoria del producto: ")
-    conexion = sqlite3.connect("base_datos.db")
-    cursor = conexion.cursor()
-    cursor.execute("INSERT INTO Productos (nombre, descripcion, precio, cantidad, categoria) VALUES (?, ?, ?, ?, ?)", (nombre, descripcion, precio, cantidad, categoria))
-    conexion.commit()
-    conexion.close()
+    productonuevo = {"nombre" : nombre , "descripcion" : descripcion, "precio" : precio, "cantidad" : cantidad, "categoria" : categoria}
+    productos.update({idcount : productonuevo})
+    idcount += 1
 
 def mostrar_productos() :
     print(*titulos, sep='\t\t')
