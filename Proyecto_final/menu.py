@@ -1,6 +1,7 @@
 #Menu inicial
 import os
 from colorama import init, Fore, Back, Style
+from prettytable import PrettyTable
 init(autoreset=True)
 
 import sqlite3
@@ -58,13 +59,58 @@ def registrar_producto() :
     conexion.close()
 
 def mostrar_productos() :
-    print(*titulos, sep='\t\t')
-    for id, producto in productos.items():
-        print()
-        print(id, end='\t\t')
-        for clave in producto:
-            print(producto[clave], end='\t\t')
-    print("\n")
+    conexion = sqlite3.connect("base_datos.db")
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM Productos")
+    resultados = cursor.fetchall()
+    #print(*titulos, sep='\t\t')
+    tabla = PrettyTable(titulos)
+    for registro in resultados:
+       tabla.add_row(registro)
+    print(tabla)
+    conexion.close()
+
+def modificar_stock() :
+   codigo = int(input(Fore.YELLOW + "\nEscriba un código de producto: "))
+   nuevacantidad = int(input(Fore.YELLOW + "\nIngrese la nueva cantidad del producto: "))
+   conexion = sqlite3.connect("base_datos.db")
+   cursor = conexion.cursor()
+   cursor.execute("UPDATE Productos SET cantidad = ? WHERE id = ?", (nuevacantidad, codigo))
+   conexion.commit()
+   conexion.close()
+
+def borrar_producto():
+   codigo = int(input(Fore.YELLOW + "\nEscriba el código de producto a eliminar: "))
+   conexion = sqlite3.connect("base_datos.db")
+   cursor = conexion.cursor()
+   cursor.execute("DELETE FROM Productos WHERE id = ?", (codigo,))
+   conexion.commit()
+   conexion.close()
+
+def buscar_producto():
+    codigo = int(input(Fore.YELLOW + "\nEscriba un código de producto: "))
+    conexion = sqlite3.connect("base_datos.db")
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM Productos WHERE id = ?", (codigo,))
+    resultados = cursor.fetchall()
+    tabla = PrettyTable(titulos)
+    for registro in resultados:
+       tabla.add_row(registro)
+    print(tabla)
+    conexion.close()   
+
+def lista_bajo_stock():
+    cant_limite = int(input(Fore.YELLOW + "\nEscriba la cantidad minima aceptada: "))
+    conexion = sqlite3.connect("base_datos.db")
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM Productos WHERE cantidad < ?", (cant_limite,))
+    resultados = cursor.fetchall()
+    tabla = PrettyTable(titulos)
+    for registro in resultados:
+       tabla.add_row(registro)
+    print(tabla)
+    conexion.close()
+
 
 def mostrar_menu():
     opcion = 0
@@ -77,12 +123,27 @@ def mostrar_menu():
        print(Style.BRIGHT + Fore.CYAN + "5. Buscar producto")
        print(Style.BRIGHT + Fore.CYAN + "6. Lista de productos con bajo stock")
        print(Style.BRIGHT + Fore.RED + "7. Salir")      
-       opcion = int(input(Fore.YELLOW + "\nSeleccione una opción entre 1 y 7: "))
+       try:
+        opcion = int(input(Fore.YELLOW + "\nSeleccione una opción entre 1 y 7: "))
+       except ValueError:
+        opcion = 0
        os.system('cls')
        print(f"Has seleccionado la opción {opcion}")
        if(opcion == 1):
         registrar_producto()
        elif(opcion == 2):
         mostrar_productos()
+       elif(opcion == 3):
+        modificar_stock()
+       elif(opcion == 4):
+        borrar_producto()
+       elif(opcion == 5):
+        buscar_producto()
+       elif(opcion == 6):
+        lista_bajo_stock()
+       elif(opcion == 7):
+        print(Style.BRIGHT + Fore.YELLOW + "\nHasta la próxima")
+       else:
+        print(Style.BRIGHT + Fore.RED + "\nOpción ingresada invalida \nPor favor Seleccione una opción entre 1 y 7: ")
 
 mostrar_menu()
