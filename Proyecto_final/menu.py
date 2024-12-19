@@ -70,12 +70,27 @@ def mostrar_productos() :
     print(tabla)
     conexion.close()
 
+def producto_existe(id_prod):
+    codigo = id_prod
+    conexion = sqlite3.connect("base_datos.db")
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM Productos WHERE id = ?", (codigo,))
+    resultados = cursor.fetchone()
+    conexion.close()
+    if resultados:
+        return True
+    else:
+        return False
+
 def modificar_stock() :
    codigo = int(input(Fore.YELLOW + "\nEscriba un código de producto: "))
    nuevacantidad = int(input(Fore.YELLOW + "\nIngrese la nueva cantidad del producto: "))
    conexion = sqlite3.connect("base_datos.db")
    cursor = conexion.cursor()
-   cursor.execute("UPDATE Productos SET cantidad = ? WHERE id = ?", (nuevacantidad, codigo))
+   if producto_existe(codigo):
+    cursor.execute("UPDATE Productos SET cantidad = ? WHERE id = ?", (nuevacantidad, codigo))
+   else:
+    print(Style.BRIGHT + Fore.RED + "No existe un producto con ese código")
    conexion.commit()
    conexion.close()
 
@@ -93,10 +108,13 @@ def buscar_producto():
     cursor = conexion.cursor()
     cursor.execute("SELECT * FROM Productos WHERE id = ?", (codigo,))
     resultados = cursor.fetchall()
-    tabla = PrettyTable(titulos)
-    for registro in resultados:
-       tabla.add_row(registro)
-    print(tabla)
+    if resultados:
+        tabla = PrettyTable(titulos)
+        for registro in resultados:
+            tabla.add_row(registro)
+            print(tabla)
+    else:
+        print(Style.BRIGHT + Fore.RED + "No existe un producto con ese código")
     conexion.close()   
 
 def lista_bajo_stock():
